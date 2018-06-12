@@ -3,6 +3,10 @@ package android.example.com.squawker.fcm;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import android.util.Log;
+
+import java.util.Map;
+
 /**
  * Created by fatimazza on 6/12/18.
  */
@@ -15,6 +19,8 @@ import com.google.firebase.messaging.RemoteMessage;
 
 public class SquawkFirebaseMessageService extends FirebaseMessagingService {
 
+    private static String LOG_TAG = SquawkFirebaseMessageService.class.getSimpleName();
+
     /**
      * Called when message is received.
      *
@@ -22,7 +28,6 @@ public class SquawkFirebaseMessageService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        super.onMessageReceived(remoteMessage);
 
          /* There are two types of messages data messages and notification messages.
 
@@ -44,5 +49,38 @@ public class SquawkFirebaseMessageService extends FirebaseMessagingService {
          /* The Squawk server always sends just *data* messages, meaning that onMessageReceived when
             the app is both in the foreground AND the background
           */
+
+        Log.d(LOG_TAG, "From: " + remoteMessage.getFrom());
+
+
+        // Check if message contains a data payload.
+        Map<String, String> data = remoteMessage.getData();
+        if (data.size() > 0) {
+            Log.d(LOG_TAG, "Message data payload: " + data);
+
+            //send notification that you got a new messages
+            sendNotification(data);
+            insertSquawk(data);
+        }
+    }
+
+
+    /**
+     * Create and show a simple notification containing the received FCM message
+     *
+     * @param data Map which has the message data in it
+     */
+    private void sendNotification(Map<String, String> data) {
+
+    }
+
+
+    /**
+     * Inserts a single squawk into the database;
+     *
+     * @param data Map which has the message data in it
+     */
+    private void insertSquawk(final Map<String, String> data) {
+
     }
 }
