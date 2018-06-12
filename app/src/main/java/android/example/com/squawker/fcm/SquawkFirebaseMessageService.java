@@ -5,13 +5,16 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.example.com.squawker.MainActivity;
 import android.example.com.squawker.R;
 import android.example.com.squawker.provider.SquawkContract;
+import android.example.com.squawker.provider.SquawkProvider;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -126,5 +129,21 @@ public class SquawkFirebaseMessageService extends FirebaseMessagingService {
      */
     private void insertSquawk(final Map<String, String> data) {
 
+        // Database operations should not be done on the main thread,
+        // but in background thread
+        AsyncTask<Void, Void, Void> insertSquawkTask = new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                ContentValues newMessage = new ContentValues();
+                newMessage.put(SquawkContract.COLUMN_AUTHOR, data.get(JSON_KEY_AUTHOR));
+                newMessage.put(SquawkContract.COLUMN_MESSAGE, data.get(JSON_KEY_MESSAGE).trim());
+                newMessage.put(SquawkContract.COLUMN_AUTHOR_KEY, data.get(JSON_KEY_AUTHOR_KEY));
+                newMessage.put(SquawkContract.COLUMN_DATE, data.get(JSON_KEY_DATE));
+                getContentResolver().insert(SquawkProvider.SquawkMessages.CONTENT_URI, newMessage);
+                return null;
+            }
+        };
+
+        insertSquawkTask.execute();
     }
 }
