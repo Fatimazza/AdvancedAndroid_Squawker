@@ -86,7 +86,24 @@ public class FollowingPreferenceFragment extends PreferenceFragmentCompat
 
     }
 
-    // TODO (3) Make sure to register and unregister this as a Shared Preference Change listener, in
+    // COMPLETED (3) Make sure to register and unregister this as a Shared Preference Change listener, in
     // onCreate and onDestroy.
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Add the shared preference change listener
+        getPreferenceScreen().getSharedPreferences()
+            .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        // Remove the shared preference change listener
+        getPreferenceScreen().getSharedPreferences()
+            .unregisterOnSharedPreferenceChangeListener(this);
+    }
 }
