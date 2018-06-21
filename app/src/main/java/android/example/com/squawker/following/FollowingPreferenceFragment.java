@@ -15,10 +15,15 @@
 */
 package android.example.com.squawker.following;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import android.content.SharedPreferences;
 import android.example.com.squawker.R;
 import android.os.Bundle;
+import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.SwitchPreferenceCompat;
+import android.util.Log;
 
 
 /**
@@ -36,7 +41,8 @@ public class FollowingPreferenceFragment extends PreferenceFragmentCompat
         // Add visualizer preferences, defined in the XML file in res->xml->preferences_squawker
         addPreferencesFromResource(R.xml.following_squawker);
     }
-    // TODO (2) When a SharedPreference changes, check which preference it is and subscribe or
+
+    // COMPLETED (2) When a SharedPreference changes, check which preference it is and subscribe or
     // un-subscribe to the correct topics.
 
     // Ex. FirebaseMessaging.getInstance().subscribeToTopic("key_lyla");
@@ -55,6 +61,28 @@ public class FollowingPreferenceFragment extends PreferenceFragmentCompat
      * */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        Preference preference = findPreference(key);
+        if (preference != null && preference instanceof SwitchPreferenceCompat) {
+
+            // Get the current state of the switch preference
+            boolean isOn = sharedPreferences.getBoolean(key, false);
+
+            if (isOn) {
+                // The preference key matches the following key for the associated instructor in
+                // FCM. For example, the key for Lyla is key_lyla (as seen in
+                // following_squawker.xml). The topic for Lyla's messages is /topics/key_lyla
+
+                // Subscribe
+                FirebaseMessaging.getInstance().subscribeToTopic(key);
+                Log.d(LOG_TAG, "Subscribing to " + key);
+
+            } else {
+                // Un-subscribe
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(key);
+                Log.d(LOG_TAG, "Un-subscribing to " +key);
+            }
+        }
 
     }
 
